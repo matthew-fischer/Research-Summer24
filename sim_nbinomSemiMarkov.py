@@ -1,6 +1,7 @@
 import sys, numpy as np, matplotlib.pyplot as plt
 from helpers import read_me, build_seqs, transition_matrix
 from nbinomSemiMarkov import create_series, get_mean_var, get_parameters, failure
+from sim_geoSemiMarkov import plotting
 
 def simulation(x_seq, t_seq, trans_matrix, paras, length):
     sleep_states = []
@@ -16,26 +17,6 @@ def simulation(x_seq, t_seq, trans_matrix, paras, length):
     # End state is 1
     sleep_states.append(1)
     return sleep_states
-
-def plotting(sleep_states, length):
-    time = []
-    for i in range(length):
-        time.append(i + 1)
-
-    x_points = np.array(time)
-    y_points = np.array(sleep_states)
-    font1 = {'family':'serif', 'color':'black'}
-    plt.title("Semi Markov Model following Negative Binomial Distribution")
-    plt.xlabel("Hours Patient has been Asleep", fontdict = font1)
-    plt.ylabel("Each Sleep State", fontdict = font1)
-    plt.xticks(np.arange(0, 1400, 200))
-    custom_yticks = ["Awake", "REM", "NREM1", "NREM2", "NREM3"]
-    plt.yticks(np.arange(1,6,1), custom_yticks)
-    plt.plot(x_points, y_points, "o-", mfc = "white")
-
-    plt.show()
-
-    return
 
 def main():
     # TO RUN THIS FILE: SLEEPSTATE FILE NAME AS A COMMAND LINE ARGUMENT
@@ -62,7 +43,7 @@ def main():
         print(row)
     print("\n")
 
-    plotting(sim_sleep_states, len(sim_sleep_states))
+    plotting(sim_sleep_states, len(sim_sleep_states), "Semi Markov Model following Negative Binomial Distribution")
 
     return
 

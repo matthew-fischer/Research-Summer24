@@ -25,7 +25,7 @@ def simulate(matrix, results, length):
     output.append(1)
     return output
 
-def plotting(sleep_states, length):
+def plotting(sleep_states, length, title):
     time = []
     for i in range(length):
         time.append(i + 1)
@@ -33,7 +33,7 @@ def plotting(sleep_states, length):
     x_points = np.array(time)
     y_points = np.array(sleep_states)
     font1 = {'family':'serif', 'color':'black'}
-    plt.title("Semi Markov Model following Geometric Distribution")
+    plt.title(title)
     plt.xlabel("Hours Patient has been Asleep", fontdict = font1)
     plt.ylabel("Each Sleep State", fontdict = font1)
     plt.xticks(np.arange(0, 1400, 200))
@@ -74,7 +74,7 @@ def main():
         print(row)
     print("\n")
 
-    plotting(results, len(results))
+    plotting(results, len(results), "Semi Markov Model following Geometric Distribution")
 
 if __name__ == "__main__":
     main()

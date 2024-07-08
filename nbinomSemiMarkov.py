@@ -10,6 +10,14 @@ def create_series(x_seq, t_seq):
 
     return series
 
+def print_series(series):
+    for i in range(len(series)):
+        print(f"State {i+1} and remained in state: {series[i]} times.")
+        total = 0
+        for j in series[i]:
+            total += j
+        print(f"State {i+1} average stay in state is: {total / len(series[i])} times.")
+
 def get_mean_var(series):
     array = []
     # Distribution can be parameterized in terms of its mean and variance
@@ -60,12 +68,7 @@ def main():
     t_seq = seq[1]
 
     series = create_series(x_seq, t_seq)
-    for i in range(len(series)):
-        print(f"State {i+1} and remained in state: {series[i]} times.")
-        total = 0
-        for j in series[i]:
-            total += j
-        print(f"State {i+1} average stay in state is: {total / len(series[i])} times.")
+    print_series(series)
     mean_var = get_mean_var(series)
     parameters = get_parameters(mean_var)
     for i in range(len(parameters)):

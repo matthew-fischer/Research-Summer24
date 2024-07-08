@@ -1,6 +1,7 @@
 import sys, matplotlib.pyplot as plt, numpy as np
 from helpers import read_me, build_seqs, transition_matrix
 from poisSemiMarkov import lambda_state
+from sim_geoSemiMarkov import plotting
 
 def simulate(matrix, lamdas, length):
     sleep_states = []
@@ -19,26 +20,6 @@ def simulate(matrix, lamdas, length):
     sleep_states.append(1)
 
     return sleep_states
-
-def plotting(sleep_states, length):
-    time = []
-    for i in range(length):
-        time.append(i + 1)
-
-    x_points = np.array(time)
-    y_points = np.array(sleep_states)
-    font1 = {'family':'serif', 'color':'black'}
-    plt.title("Semi Markov Model following Poisson Distribution")
-    plt.xlabel("Hours Patient has been Asleep", fontdict = font1)
-    plt.ylabel("Each Sleep State", fontdict = font1)
-    plt.xticks(np.arange(0, 1400, 200))
-    custom_yticks = ["Awake", "REM", "NREM1", "NREM2", "NREM3"]
-    plt.yticks(np.arange(1,6,1), custom_yticks)
-    plt.plot(x_points, y_points, "o-", mfc = "white")
-
-    plt.show()
-
-    return
 
 def main():
     # TO RUN THIS FILE: SLEEPSTATE FILE NAME AS A COMMAND LINE ARGUMENT
@@ -68,7 +49,7 @@ def main():
     print("\n")    
 
     # PLOTTING THE SIMULATED SLEEP STATES:
-    plotting(sim_states, len(sim_states))
+    plotting(sim_states, len(sim_states), "Semi Markov Model following Poisson Distribution")
 
 if __name__ == "__main__":
     main()
