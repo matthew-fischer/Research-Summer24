@@ -4,18 +4,17 @@ from binomSemiMarkov import success_failure_prob, findingN, binomRVS
 from nbinomSemiMarkov import create_series
 from sim_geoSemiMarkov import plotting
 
-def simulation(states, x_seq, t_seq, trans_matrix, length):
+def simulation(x_seq, t_seq, trans_matrix, length):
     series = create_series(x_seq, t_seq)
     max_per_state = findingN(series)
-    switch_probability = success_failure_prob(states, x_seq)
-    print(switch_probability)
+    switch_probability = success_failure_prob(max_per_state, series)
     
     sleep_states = []
     current_state = 1  # Starting state is 1
     while ((len(sleep_states)) < length):
         sleep_states.append(current_state)
         remain = binomRVS(current_state, switch_probability, max_per_state[current_state - 1])
-        print(f"Sleep State is: {current_state} and the length remained in state is {remain}.")
+        #print(f"Sleep State is: {current_state} and the length remained in state is {remain}.")
         for i in range(remain):
             if (len(sleep_states)) < length:
                 sleep_states.append(current_state)
@@ -35,7 +34,7 @@ def main():
     t_seq = seq[1]
 
     semi_markov_matrix = transition_matrix(x_seq)
-    sim_states = simulation(states, x_seq, t_seq, semi_markov_matrix, len(states))
+    sim_states = simulation(x_seq, t_seq, semi_markov_matrix, len(states))
 
     sim_matrix = transition_matrix(sim_states)
     print("Transition matrix based on simulated sleep states:")

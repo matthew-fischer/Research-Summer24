@@ -1,14 +1,22 @@
 import sys
 from helpers import read_me, build_seqs
 from nbinomSemiMarkov import create_series, print_series
-from geoSemiMarkov import transition_totals, count_matrix, switches, geometric_distribution
 from scipy.stats import binom
 
-def success_failure_prob(states, x_seq):
-    totals = transition_totals(states)
-    counts_x = count_matrix(x_seq)
-    switch = switches(counts_x)
-    switch_probability = geometric_distribution(totals, switch)
+def success_failure_prob(max_per_state, series):
+    switch_probability = []
+    for state in range(len(series)):
+        total = 0
+        for index in series[state]:
+            if (max_per_state[state] == 0):
+                continue
+            else:
+                total += index / max_per_state[state]
+        if (len(series) == 0):
+            switch_probability.append(0)
+        else:
+            total = total / len(series)
+            switch_probability.append(total)
     return switch_probability
 
 def findingN(series):
@@ -29,7 +37,7 @@ def binomRVS(current_state, switch_prob, max_num):
 def sim_binomRVS(x_seq, switch_prob, max_num):
     simulated = []
     for i in range(len(x_seq)):
-        simulated.append(binomRVS(x_seq[i], switch_prob, max_num))
+        simulated.append(binomRVS(x_seq[i], switch_prob, max_num[x_seq[i] - 1]))
     return simulated
 
 def binomPMF(x_seq, t_seq, switch_prob, max_num):
@@ -52,8 +60,8 @@ def main():
 
     max_per_state = findingN(series)
     print(f"N value per state: {max_per_state}.")
-    
-    switch_probability = success_failure_prob(states, x_seq)
+
+    switch_probability = success_failure_prob(max_per_state, series)
     print(f"\nThe Switch Probabilities are: {switch_probability}\n")
 
     sim_binom = sim_binomRVS(x_seq, switch_probability, max_per_state)

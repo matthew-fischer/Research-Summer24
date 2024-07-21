@@ -130,7 +130,7 @@ def main():
     parameters = get_parameters(mean_var)
     # FOR BINOM SEMI MARKOV:
     max_per_state = findingN(series)
-    switch_probability = success_failure_prob(states, x_sequence)
+    switch_probability = success_failure_prob(max_per_state, series)
 
     # CALCULATES P(DATA | MODEL):
     naive = data_model_naive(probability, count_naive, len(probability))
