@@ -5,7 +5,7 @@ from geoSemiMarkov import transition_totals, switches, geometric_distribution
 from poisSemiMarkov import lambda_state
 from nbinomSemiMarkov import create_series, get_mean_var, get_parameters
 from binomSemiMarkov import findingN, success_failure_prob
-from scipy.stats import nbinom, binom
+from scipy.stats import nbinom, binom, logser
 
 # GETTING LOG VALUE FOR FREQUENTIST NAIVE MODEL
 def data_model_naive(probabilities, counts, length):
@@ -98,6 +98,18 @@ def data_model_binomSemi(x_seq, t_seq, matrix, probabilities, max_num):
         total += binom.logpmf(t_seq[j] - 1, max_num[index], probabilities[index])
     return total
 
+# GETTING LOG VALUE FOR SEMI-MARKOV MODEL (USING A LOGARITHMIC DISTRIBUTION)
+def data_model_logSemi(x_seq, t_seq, matrix, probabilities):
+    total = 0
+    for i in range(1, len(x_seq)):
+        row = x_seq[i-1] - 1
+        col = x_seq[i] - 1
+        total += math.log(matrix[row][col])
+    for j in range(len(x_seq)):
+        index = x_seq[j] - 1  # x_seq[j] is the current state
+        total += logser.logpmf(t_seq[i], probabilities[index])
+    return total
+
 def log_bayes_factor(model1, model2):
     return (model1 - model2)
 
@@ -131,6 +143,8 @@ def main():
     # FOR BINOM SEMI MARKOV:
     max_per_state = findingN(series)
     switch_probability = success_failure_prob(max_per_state, series)
+    # FOR LOG SEMI MARKOV:
+    switch_probabilties = geometric_distribution(totals_geoSemi, switch_geoSemi)
 
     # CALCULATES P(DATA | MODEL):
     naive = data_model_naive(probability, count_naive, len(probability))
@@ -145,6 +159,8 @@ def main():
     print(f"Semi Markov Negative Binomial Distribution log ( P(Data|Model) ) is {semi_nbinom}.")
     semi_binom = data_model_binomSemi(x_sequence, t_sequence, trans_matrix, switch_probability, max_per_state)
     print(f"Semi Markov Binomial Distribution log ( P(Data|Model) ) is {semi_binom}.")
+    semi_log = data_model_logSemi(x_sequence, t_sequence, trans_matrix, switch_probabilties)
+    print(f"Semi Markov Logarithmic Distribution log ( P(Data|Model) ) is {semi_log}.")
 
     print("\n")
 
@@ -158,7 +174,9 @@ def main():
     log_bf_nbinomSemi = log_bayes_factor(markov, semi_nbinom)
     print(f"The Logged Bayes Factor Value Between the Markov and the Semi Markov(Negative Binomial) is {log_bf_nbinomSemi}.")
     log_bf_binomSemi = log_bayes_factor(markov, semi_binom)
-    print(f"The Logged  Bayes Factor Value Between the Markov and the Semi Markov(Binomial) is {log_bf_binomSemi}.")
+    print(f"The Logged Bayes Factor Value Between the Markov and the Semi Markov(Binomial) is {log_bf_binomSemi}.")
+    log_bf_logSemi = log_bayes_factor(markov, semi_log)
+    print(f"The Logged Bayes Factor Value Between the Markov and the Semi Markov(Logarithmic) is {log_bf_logSemi}.")
 
 if __name__ == "__main__":
     main()
