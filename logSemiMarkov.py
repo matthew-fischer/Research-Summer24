@@ -1,18 +1,38 @@
-import sys
+import sys, math, numpy as np
 from helpers import read_me, build_seqs
 from nbinomSemiMarkov import create_series, print_series
-from geoSemiMarkov import transition_totals, count_matrix, switches, geometric_distribution
 from scipy.stats import logser
+from scipy.special import lambertw
+
+def avg_series(series):
+    avg = []
+    for i in range(len(series)):
+        total_sum = 0
+        for j in range(len(series[i])):
+            total_sum += series[i][j]
+        avg.append(total_sum / len(series[i]))
+    return avg
+
+def prob(x_bar):
+    # p = (b*x_bar) / (1 + b*x_bar)
+    probabilities = []
+    for i in range(len(x_bar)):
+        value = ((-math.e)**(-1/x_bar[i])) / x_bar[i]
+        lambert = lambertw(value, -1)  # THE -1 is for W-1.
+        b = (-1/x_bar[i]) - lambert
+        p = (b*x_bar[i]) / (1 + (b*x_bar[i]))
+        probabilities.append(np.real(p))
+    return probabilities
 
 def failure(probability, size):
-    sim = logser.rvs(1 - probability, size=size)  # IS IT (1-p) OR IS IT (p)
+    sim = logser.rvs(probability, size=size)
     return sim
 
 def log_distribution(t_seq, x_seq, probabilities):
     likelihoods = []
     for i in range(len(t_seq)):
         index = x_seq[i] - 1
-        likelihoods.append(logser.logpmf(t_seq[i], 1 - probabilities[index]))  # IS IT (1-p) OR IS IT (p)
+        likelihoods.append(logser.logpmf(t_seq[i], probabilities[index]))
     return likelihoods
 
 def main():
@@ -26,22 +46,21 @@ def main():
 
     series = create_series(x_seq, t_seq)
     print_series(series)
+    avgSeries = avg_series(series)  # THIS IS MY X BAR.
 
-    counts = count_matrix(x_seq)
-    totals = transition_totals(states)
-    switch = switches(counts)
-    switch_probabilities = geometric_distribution(totals, switch)
+    switch_prob = prob(avgSeries)
+    print(switch_prob)
 
     LENGTH_OF_SIM = 10
-    for i in range(len(switch_probabilities)):
-        sim = failure(switch_probabilities[i], LENGTH_OF_SIM)
-        print(f"State {i + 1} simulated values are: {sim}")
+    for i in range(len(switch_prob)):
+        sim = failure(switch_prob[i], LENGTH_OF_SIM)
+        #print(f"State {i + 1} simulated values are: {sim}")
         total = 0
         for j in sim:
             total += j
-        print(f"State {i + 1} average simulated value is {total / len(sim)}.")
+        #print(f"State {i + 1} average simulated value is {total / len(sim)}.")
 
-    likelihoods = log_distribution(t_seq, x_seq, switch_probabilities)
+    likelihoods = log_distribution(t_seq, x_seq, switch_prob)
     total = 0
     for likelihood in likelihoods:
         total += likelihood

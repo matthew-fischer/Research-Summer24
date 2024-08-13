@@ -5,6 +5,7 @@ from geoSemiMarkov import transition_totals, switches, geometric_distribution
 from poisSemiMarkov import lambda_state
 from nbinomSemiMarkov import create_series, get_mean_var, get_parameters
 from binomSemiMarkov import findingN, success_failure_prob
+from logSemiMarkov import avg_series, prob
 from scipy.stats import nbinom, binom, logser
 
 # GETTING LOG VALUE FOR FREQUENTIST NAIVE MODEL
@@ -107,7 +108,7 @@ def data_model_logSemi(x_seq, t_seq, matrix, probabilities):
         total += math.log(matrix[row][col])
     for j in range(len(x_seq)):
         index = x_seq[j] - 1  # x_seq[j] is the current state
-        total += logser.logpmf(t_seq[i], probabilities[index])
+        total += logser.logpmf(t_seq[j], probabilities[index])
     return total
 
 def log_bayes_factor(model1, model2):
@@ -144,7 +145,8 @@ def main():
     max_per_state = findingN(series)
     switch_probability = success_failure_prob(max_per_state, series)
     # FOR LOG SEMI MARKOV:
-    switch_probabilties = geometric_distribution(totals_geoSemi, switch_geoSemi)
+    avgSeries = avg_series(series)
+    switch_prob = prob(avgSeries)
 
     # CALCULATES P(DATA | MODEL):
     naive = data_model_naive(probability, count_naive, len(probability))
@@ -159,7 +161,7 @@ def main():
     print(f"Semi Markov Negative Binomial Distribution log ( P(Data|Model) ) is {semi_nbinom}.")
     semi_binom = data_model_binomSemi(x_sequence, t_sequence, trans_matrix, switch_probability, max_per_state)
     print(f"Semi Markov Binomial Distribution log ( P(Data|Model) ) is {semi_binom}.")
-    semi_log = data_model_logSemi(x_sequence, t_sequence, trans_matrix, switch_probabilties)
+    semi_log = data_model_logSemi(x_sequence, t_sequence, trans_matrix, switch_prob)
     print(f"Semi Markov Logarithmic Distribution log ( P(Data|Model) ) is {semi_log}.")
 
     print("\n")

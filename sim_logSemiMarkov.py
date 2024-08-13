@@ -1,7 +1,8 @@
 import sys, numpy as np
 from helpers import read_me, build_seqs
-from geoSemiMarkov import transition_totals, transition_matrix, count_matrix, switches, geometric_distribution
-from logSemiMarkov import failure
+from geoSemiMarkov import transition_matrix
+from nbinomSemiMarkov import create_series
+from logSemiMarkov import failure, avg_series, prob
 from sim_geoSemiMarkov import plotting
 
 def simulation(matrix, switch_probabilities, length, SIZE):
@@ -9,7 +10,7 @@ def simulation(matrix, switch_probabilities, length, SIZE):
     current_state = 1  # Starting state is 1
     while (len(sleep_states) < length):
         sleep_states.append(current_state)
-        remain = failure(1 - switch_probabilities[current_state - 1], SIZE)  # This determines how many times we stay in the current state. (Following a Logarthmic Distribution).
+        remain = failure(switch_probabilities[current_state - 1], SIZE)  # This determines how many times we stay in the current state. (Following a Logarthmic Distribution).
         for i in range(remain[0]):
             if (len(sleep_states) < length):
                 sleep_states.append(current_state)
@@ -26,14 +27,15 @@ def main():
     seq = build_seqs(states)
     x_seq = seq[0]
     t_seq = seq[1]
-    counts = count_matrix(x_seq)
-    totals = transition_totals(states)
-    switch = switches(counts)
-    switch_probabilities = geometric_distribution(totals, switch)
+
+    series = create_series(x_seq, t_seq)
+    avgSeries = avg_series(series)
+    switch_prob = prob(avgSeries)
+
     semi_markov_matrix = transition_matrix(x_seq)
     TRIAL_SIZE = 1
 
-    sim_states = simulation(semi_markov_matrix, switch_probabilities, len(states), TRIAL_SIZE)
+    sim_states = simulation(semi_markov_matrix, switch_prob, len(states), TRIAL_SIZE)
 
     sim_matrix = transition_matrix(sim_states)
     print("Transition matrix using simulated sleep states:")
