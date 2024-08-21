@@ -33,8 +33,12 @@ def get_parameters(mean_var_array):
     for i in range(len(mean_var_array)):
         mean = mean_var_array[i][0]
         var = mean_var_array[i][1]
-        p = mean / var
-        r = (mean ** 2) / (var - mean)
+        if ((var - mean) != 0):
+            p = mean / var
+            r = (mean ** 2) / (var - mean)
+        else:  # We will be using a poisson distribution here. These p and r values will fail a later if statement on purpose.
+            p = 1
+            r = 0
         parameters.append([r, p])
     return parameters
 

@@ -108,7 +108,10 @@ def data_model_logSemi(x_seq, t_seq, matrix, probabilities):
         total += math.log(matrix[row][col])
     for j in range(len(x_seq)):
         index = x_seq[j] - 1  # x_seq[j] is the current state
-        total += logser.logpmf(t_seq[j], probabilities[index])
+        if (probabilities[index] != 0):  # AVOIDING NAN PROBLEM
+            calculated = logser.logpmf(t_seq[j], probabilities[index])
+            if (math.isnan(calculated) == False):  # IS THIS OKAY TO DO.
+                total += logser.logpmf(t_seq[j], probabilities[index])
     return total
 
 def log_bayes_factor(model1, model2):

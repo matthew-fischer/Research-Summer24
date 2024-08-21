@@ -7,6 +7,9 @@ from scipy.special import lambertw
 def avg_series(series):
     avg = []
     for i in range(len(series)):
+        if (len(series[i]) == 0):
+            avg.append(0)
+            continue
         total_sum = 0
         for j in range(len(series[i])):
             total_sum += series[i][j]
@@ -17,6 +20,9 @@ def prob(x_bar):
     # p = (b*x_bar) / (1 + b*x_bar)
     probabilities = []
     for i in range(len(x_bar)):
+        if (x_bar[i] == 0 or x_bar[i] == 1):  # IS THIS OKAY?
+            probabilities.append(0)  # In case patient never enters this state.
+            continue
         value = ((-math.e)**(-1/x_bar[i])) / x_bar[i]
         lambert = lambertw(value, -1)  # THE -1 is for W-1.
         b = (-1/x_bar[i]) - lambert
@@ -47,9 +53,7 @@ def main():
     series = create_series(x_seq, t_seq)
     print_series(series)
     avgSeries = avg_series(series)  # THIS IS MY X BAR.
-
     switch_prob = prob(avgSeries)
-    print(switch_prob)
 
     LENGTH_OF_SIM = 10
     for i in range(len(switch_prob)):
